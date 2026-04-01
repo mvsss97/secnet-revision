@@ -233,6 +233,8 @@ const ch20={id:"ch20",num:20,icon:"\ud83d\udc94",title:"Heartbleed — Bug et At
 
 // Inject images into chapters after load
 function injectImages() {
+    if(window._imgsInjectedDone) return;
+    window._imgsInjectedDone = true;
     const imgs = {
         's15_sniff':  ['img/packet_structure.png', 'Structure d\'un paquet réseau — Ethernet + IP + TCP/UDP + Données'],
         's16_syn':    ['img/syn_flooding.png',     'Attaque SYN Flooding — saturation de la file half-open'],
