@@ -231,10 +231,8 @@ const ch20={id:"ch20",num:20,icon:"\ud83d\udc94",title:"Heartbleed — Bug et At
     {id:"s20_def",short:"20.4 Défense + Leçons",title:"20.4 Défense, Correction et Leçons",content:"\n<div class=\"prose\">\n<h3 class=\"sub\">Actions immédiates requises en 2014</h3>\n<ol>\n<li><strong>Mettre à jour OpenSSL</strong> vers 1.0.1g (ou désactiver l'extension Heartbeat à la compilation avec <code>-DOPENSSL_NO_HEARTBEATS</code>)</li>\n<li><strong>Révoquer TOUS les certificats TLS</strong> du serveur (la clé privée peut avoir été volée)</li>\n<li><strong>Générer de nouvelles paires de clés</strong> et demander un nouveau certificat</li>\n<li><strong>Invalider toutes les sessions utilisateur</strong> actives (cookies de session potentiellement volés)</li>\n<li><strong>Forcer le changement de mot de passe</strong> pour tous les utilisateurs</li>\n</ol>\n</div>\n<div class=\"code-block\"><div class=\"code-label\">Vérifier si un système est vulnérable</div>\n<pre\"># Vérifier la version d'OpenSSL :\nopenssl version\n# OpenSSL 1.0.1f ← VULNÉRABLE\n# OpenSSL 1.0.1g ← PATCHÉ\n# OpenSSL 1.0.2  ← OK\n\n# Tester à distance avec Nmap :\nnmap --script ssl-heartbleed -p 443 target.example.com\n\n# Ou avec un script Python :\npython heartbleed_test.py target.example.com 443\n\n# Vérifier TOUTES les instances d'OpenSSL sur le système :\ndpkg --list | grep libssl\n# Mettre à jour :\nsudo apt-get update && sudo apt-get install --only-upgrade libssl1.0.0\nsudo service nginx restart   # Redémarrer IMPÉRATIVEMENT</pre></div>\n\n<div class=\"prose\">\n<h3 class=\"sub\">Leçons fondamentales</h3>\n</div>\n<table class=\"dt\">\n<tr><th>Leçon</th><th>Explication</th></tr>\n<tr><td>Ne jamais faire confiance à une longueur déclarée</td><td>Toujours valider les entrées : la longueur reçue d'un tiers ne doit jamais dicter la quantité de mémoire à lire/copier</td></tr>\n<tr><td>Utiliser des outils de défense mémoire</td><td>Valgrind, AddressSanitizer (-fsanitize=address) auraient détecté la lecture hors limites</td></tr>\n<tr><td>Defense in depth</td><td>Même avec la fuite mémoire, Perfect Forward Secrecy (DHE/ECDHE) aurait limité les dégâts</td></tr>\n<tr><td>Open Source n'est pas toujours plus sûr</td><td>OpenSSL est open source depuis 1998, des milliers de développeurs auraient pu voir ce bug en 2 ans</td></tr>\n<tr><td>La cryptographie ne suffit pas</td><td>TLS chiffrait tout — mais la fuite était dans l'implémentation, pas dans la cryptographie elle-même</td></tr>\n</table>\n\n<div class=\"info-box ok\"><div class=\"ib-title\">Perfect Forward Secrecy (PFS) — Une limite partielle</div>\n<p>Si le serveur utilisait <strong>DHE (Diffie-Hellman Ephemeral)</strong> ou <strong>ECDHE</strong> pour l'échange de clés TLS, la fuite de la clé privée serveur ne permettrait PAS de déchiffrer les sessions passées enregistrées. En effet, avec PFS, chaque session génère une clé symétrique éphémère qui n'est jamais stockée sur le disque. Cependant, la fuite de mots de passe et de cookies restait possible.</p>\n<p>Activer PFS en Apache : <code>SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384</code></p></div>\n"}
 ]};
 
-// Inject images into chapters after load
+// Inject images into chapters after load — per-element guards so it works on any chapter load
 function injectImages() {
-    if(window._imgsInjectedDone) return;
-    window._imgsInjectedDone = true;
     const imgs = {
         's15_sniff':  ['img/packet_structure.png', 'Structure d\'un paquet réseau — Ethernet + IP + TCP/UDP + Données'],
         's16_syn':    ['img/syn_flooding.png',     'Attaque SYN Flooding — saturation de la file half-open'],
@@ -245,7 +243,8 @@ function injectImages() {
     };
     Object.entries(imgs).forEach(([secId, [src, caption]]) => {
         const el = document.getElementById('sec_' + secId);
-        if(el) {
+        if(el && !el.dataset.imgDone) {
+            el.dataset.imgDone = '1';
             const div = document.createElement('div');
             div.className = 'img-card';
             div.innerHTML = '<img src="' + src + '" alt="' + caption + '" style="cursor:pointer" onclick=\'openImg(this.src,this.alt)\'/>' +
@@ -259,11 +258,12 @@ function injectImages() {
     
     // Dan Kaminsky real photo (Wikipedia) in DNS section
     const kaminskySection = document.getElementById('sec_s18_cache');
-    if(kaminskySection) {
+    if(kaminskySection && !kaminskySection.dataset.cardDone) {
+        kaminskySection.dataset.cardDone = '1';
         const card = document.createElement('div');
         card.className = 'person-card';
         card.innerHTML = `
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Dan_Kaminsky_2010.jpg/220px-Dan_Kaminsky_2010.jpg" class="person-img" alt="Dan Kaminsky" style="flex-shrink:0">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Dan_Kaminsky_2010.jpg/220px-Dan_Kaminsky_2010.jpg" class="person-img" alt="Dan Kaminsky" referrerpolicy="no-referrer" style="flex-shrink:0">
             <div class="person-info">
                 <h4>Dan Kaminsky (1979 – 2021)</h4>
                 <div class="person-title">Chercheur en cybersécurité | Chef de la sécurité chez Human Security</div>
@@ -278,7 +278,8 @@ function injectImages() {
     
     // Wenliang Du (Seed Labs author) mention in introduction
     const ch15Panel = document.getElementById('panel_ch15');
-    if(ch15Panel) {
+    if(ch15Panel && !ch15Panel.dataset.wdDone) {
+        ch15Panel.dataset.wdDone = '1';
         const firstSection = ch15Panel.querySelector('.section-block');
         if(firstSection) {
             const authorCard = document.createElement('div');
