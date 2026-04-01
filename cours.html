@@ -5,129 +5,183 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cours Sécurité Réseaux – FR Intégral</title>
 <style>
-:root{--bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2dd4ab;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--text:#e8eaf0;--muted:#8891a8;--border:#2e3349;--code-bg:#0d1117}
+:root{--bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2dd4ab;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--text:#e8eaf0;--muted:#8891a8;--border:#2e3349;--code-bg:#0d1117;--radius:12px}
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;line-height:1.75;min-height:100vh}
-a{color:var(--accent)}
-/* Layout */
+a{color:var(--accent);text-decoration:none}
+code{background:rgba(79,142,247,.12);color:var(--accent2);padding:1px 6px;border-radius:4px;font-size:.87em;font-family:'Courier New',monospace}
+
+/* ===== LAYOUT ===== */
 .app-shell{display:flex;height:100vh;overflow:hidden}
 .sidebar{width:275px;min-width:275px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
 .sidebar.collapsed{width:0;min-width:0;overflow:hidden}
-.sidebar-inner{overflow-y:auto;flex:1;padding:12px 0}
-.sidebar-header{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+.sidebar-inner{overflow-y:auto;flex:1;padding:10px 0}
+.sidebar-header{padding:16px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .sidebar-header h2{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-.chapter-item{padding:11px 16px;cursor:pointer;transition:background .2s;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:10px}
-.chapter-item:hover{background:rgba(79,142,247,.07)}
+.chapter-item{padding:10px 14px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;display:flex;align-items:flex-start;gap:10px}
+.chapter-item:hover{background:rgba(79,142,247,.07);border-left-color:rgba(79,142,247,.3)}
 .chapter-item.active{background:rgba(79,142,247,.13);border-left-color:var(--accent);color:var(--accent)}
-.chapter-icon{font-size:1rem;min-width:22px;margin-top:2px}
-.chapter-label{font-size:.82rem;font-weight:500;line-height:1.35}
-/* Main */
-.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;background:var(--bg)}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(15,17,23,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:11px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.chapter-icon{font-size:.95rem;min-width:20px;margin-top:2px}
+.chapter-label{font-size:.8rem;font-weight:500;line-height:1.35}
+
+/* ===== MAIN ===== */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,17,23,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .menu-btn{background:none;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:1rem;transition:all .2s}
 .menu-btn:hover{background:var(--card);border-color:var(--accent)}
-.topbar-title{font-size:.9rem;font-weight:600;flex:1}
-.search-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:.82rem;width:210px;outline:none;transition:border-color .2s}
+.topbar-title{font-size:.88rem;font-weight:600;flex:1}
+.nav-link{background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.3);color:var(--accent2);border-radius:7px;padding:5px 11px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.nav-link:hover{background:rgba(124,92,252,.22);border-color:var(--accent2)}
+.search-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:.8rem;width:190px;outline:none;transition:border-color .2s}
 .search-box:focus{border-color:var(--accent)}
-.progress-badge{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.77rem;color:var(--muted);white-space:nowrap}
+.progress-badge{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.76rem;color:var(--muted);white-space:nowrap}
 .progress-badge span{color:var(--green);font-weight:700}
-/* Content */
-.content{padding:36px 44px;max-width:920px;width:100%;display:none}
+
+/* ===== CONTENT ===== */
+.content{padding:32px 40px;max-width:920px;width:100%;display:none}
 .content.active{display:block}
-.chapter-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(79,142,247,.12);color:var(--accent);border:1px solid rgba(79,142,247,.25);border-radius:6px;padding:4px 12px;font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
-.chapter-title{font-size:2rem;font-weight:700;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.chapter-desc{color:var(--muted);font-size:.92rem;max-width:750px;margin-bottom:28px;line-height:1.7}
-/* Section nav */
-.section-nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border)}
-.sec-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:5px 12px;font-size:.76rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.chapter-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(79,142,247,.12);color:var(--accent);border:1px solid rgba(79,142,247,.25);border-radius:6px;padding:4px 12px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.chapter-title{font-size:1.9rem;font-weight:700;line-height:1.2;margin-bottom:8px;background:linear-gradient(135deg,var(--text) 40%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chapter-desc{color:var(--muted);font-size:.9rem;max-width:750px;margin-bottom:24px;line-height:1.7}
+
+/* ===== SECTION NAV ===== */
+.section-nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.sec-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:5px 12px;font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .2s}
 .sec-btn:hover{border-color:var(--accent);color:var(--accent)}
 .sec-btn.active{background:rgba(79,142,247,.15);border-color:var(--accent);color:var(--accent);font-weight:700}
-/* Section blocks */
 .section-block{display:none}
 .section-block.active{display:block}
-.section-title{font-size:1.3rem;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--accent);display:inline-block}
-/* Prose */
-.prose p{margin-bottom:14px;font-size:.91rem;line-height:1.85;color:#d4d8e8}
+.section-title{font-size:1.25rem;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--accent);display:inline-block}
+
+/* ===== PROSE ===== */
+.prose p{margin-bottom:13px;font-size:.9rem;line-height:1.85;color:#d4d8e8}
 .prose strong{color:var(--text);font-weight:600}
-.prose em{color:var(--accent2)}
-.prose ul,.prose ol{margin:10px 0 14px 22px;font-size:.91rem;color:#d4d8e8}
-.prose li{margin-bottom:7px;line-height:1.75}
-h3.sub{font-size:1rem;font-weight:700;color:var(--accent2);margin:24px 0 10px;padding-left:10px;border-left:3px solid var(--accent2)}
-h4.sub2{font-size:.9rem;font-weight:600;color:var(--orange);margin:16px 0 8px}
-/* Code */
-.code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;margin:18px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3)}
-.code-label{background:rgba(79,142,247,.08);color:var(--accent);font-size:.71rem;font-weight:700;padding:6px 14px;border-bottom:1px solid var(--border);letter-spacing:.04em;text-transform:uppercase}
-.code-block pre{padding:16px;overflow-x:auto;font-family:'Courier New',Consolas,monospace;font-size:.77rem;line-height:1.6;color:#c9d1d9;white-space:pre;tab-size:4}
-/* Info boxes */
-.info-box{border-radius:10px;padding:16px 18px;margin:18px 0;border-left:4px solid;position:relative}
+.prose ul,.prose ol{margin:10px 0 13px 22px;font-size:.9rem;color:#d4d8e8}
+.prose li{margin-bottom:6px;line-height:1.75}
+h3.sub{font-size:.98rem;font-weight:700;color:var(--accent2);margin:22px 0 10px;padding-left:10px;border-left:3px solid var(--accent2)}
+h4.sub2{font-size:.9rem;font-weight:600;color:var(--orange);margin:14px 0 7px}
+
+/* ===== CODE ===== */
+.code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;margin:16px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.code-label{background:rgba(79,142,247,.08);color:var(--accent);font-size:.7rem;font-weight:700;padding:6px 14px;border-bottom:1px solid var(--border);letter-spacing:.05em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.code-label .copy-btn{background:rgba(79,142,247,.15);border:none;color:var(--accent);font-size:.7rem;border-radius:4px;padding:2px 8px;cursor:pointer;font-family:inherit;transition:background .2s}
+.copy-btn:hover{background:rgba(79,142,247,.3)}
+.code-block pre{padding:16px;overflow-x:auto;font-family:'Courier New',Consolas,monospace;font-size:.76rem;line-height:1.6;color:#c9d1d9;white-space:pre;tab-size:4}
+
+/* ===== INFO BOXES ===== */
+.info-box{border-radius:10px;padding:15px 17px;margin:16px 0;border-left:4px solid}
 .info-box.note{background:rgba(79,142,247,.07);border-color:var(--accent)}
 .info-box.warn{background:rgba(251,191,36,.07);border-color:var(--yellow)}
 .info-box.danger{background:rgba(248,113,113,.07);border-color:var(--red)}
 .info-box.ok{background:rgba(45,212,171,.07);border-color:var(--green)}
 .info-box.tip{background:rgba(124,92,252,.07);border-color:var(--accent2)}
-.ib-title{font-weight:700;font-size:.8rem;margin-bottom:9px;text-transform:uppercase;letter-spacing:.05em}
+.ib-title{font-weight:700;font-size:.79rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
 .info-box.note .ib-title{color:var(--accent)}
 .info-box.warn .ib-title{color:var(--yellow)}
 .info-box.danger .ib-title{color:var(--red)}
 .info-box.ok .ib-title{color:var(--green)}
 .info-box.tip .ib-title{color:var(--accent2)}
-.info-box p,.info-box li{font-size:.88rem;color:#d4d8e8;line-height:1.75}
+.info-box p,.info-box li{font-size:.87rem;color:#d4d8e8;line-height:1.75}
 .info-box ul,.info-box ol{margin-left:18px}
-/* Tables */
-.dt{width:100%;border-collapse:collapse;margin:16px 0;font-size:.83rem}
+
+/* ===== TABLES ===== */
+.dt{width:100%;border-collapse:collapse;margin:14px 0;font-size:.82rem}
 .dt th{background:rgba(79,142,247,.12);color:var(--accent);padding:10px 14px;text-align:left;border:1px solid var(--border);font-weight:600}
 .dt td{padding:9px 14px;border:1px solid var(--border);color:#d4d8e8;vertical-align:top}
 .dt tr:nth-child(even) td{background:rgba(255,255,255,.02)}
-.dt code{background:rgba(79,142,247,.12);color:var(--accent2);padding:1px 5px;border-radius:3px;font-size:.85em}
-/* Diagrams */
-.diagram{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;margin:18px 0;padding:20px;overflow-x:auto}
-.diagram-title{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;font-weight:600}
+
+/* ===== DIAGRAMS ===== */
+.diagram{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;margin:16px 0;padding:20px;overflow-x:auto}
+.diagram-title{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;font-weight:600}
 .diag-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
-.diag-node{background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;color:var(--accent);text-align:center;min-width:90px}
+.diag-node{background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);border-radius:8px;padding:8px 14px;font-size:.79rem;font-weight:600;color:var(--accent);text-align:center;min-width:90px}
 .diag-node.server{background:rgba(45,212,171,.12);border-color:rgba(45,212,171,.4);color:var(--green)}
 .diag-node.attacker{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.4);color:var(--red)}
-.diag-node.router{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4);color:var(--yellow)}
 .diag-arrow{font-size:1.3rem;color:var(--muted)}
-.diag-msg{font-family:'Courier New',monospace;font-size:.72rem;color:var(--muted);margin:4px 0 4px 20px}
-.diag-seq{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 12px;align-items:center;font-size:.8rem;margin:8px 0}
+.diag-seq{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 12px;align-items:center;font-size:.79rem;margin:8px 0}
 .diag-seq .step-left{text-align:right;color:var(--accent);font-family:monospace;padding:4px 8px;background:rgba(79,142,247,.08);border-radius:4px}
 .diag-seq .step-right{text-align:left;color:var(--green);font-family:monospace;padding:4px 8px;background:rgba(45,212,171,.08);border-radius:4px}
-.diag-seq .step-mid{text-align:center;color:var(--muted);font-size:.7rem}
 .diag-seq .step-arrow-r{color:var(--accent);font-size:1rem}
 .diag-seq .step-arrow-l{color:var(--green);font-size:1rem}
-.diag-seq .step-desc{grid-column:1/-1;text-align:center;color:var(--muted);font-size:.75rem;padding:2px}
-.mem-diagram{font-family:'Courier New',monospace;font-size:.78rem;line-height:1.5;background:var(--code-bg);padding:14px;border-radius:8px;border:1px solid var(--border)}
+.diag-seq .step-desc{grid-column:1/-1;text-align:center;color:var(--muted);font-size:.74rem;padding:2px}
+.mem-diagram{font-family:'Courier New',monospace;font-size:.77rem;line-height:1.55;background:var(--code-bg);padding:14px;border-radius:8px;border:1px solid var(--border)}
 .mem-ok{color:var(--green)}
 .mem-leak{color:var(--red);font-weight:bold}
 .mem-neutral{color:var(--muted)}
+
+/* ===== IMAGES ===== */
+.img-card{margin:18px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--code-bg)}
+.img-card img{width:100%;height:auto;display:block;cursor:pointer;transition:transform .3s,filter .3s}
+.img-card img:hover{transform:scale(1.01);filter:brightness(1.05)}
+.img-caption{padding:10px 14px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.img-caption .enlarge-hint{color:var(--accent);font-size:.72rem}
+.img-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+
+/* Person card */
+.person-card{display:flex;gap:16px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin:16px 0}
+.person-img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0}
+.person-info h4{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.person-info .person-title{font-size:.78rem;color:var(--accent);margin-bottom:7px}
+.person-info p{font-size:.82rem;color:#d4d8e8;line-height:1.65}
+
+/* ===== LIGHTBOX MODAL ===== */
+.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px)}
+.lightbox.open{display:flex;animation:fadeIn .2s ease}
+.lightbox img{max-width:92vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 80px rgba(0,0,0,.8);cursor:default}
+.lightbox-close{position:absolute;top:20px;right:24px;color:#fff;font-size:2rem;cursor:pointer;opacity:.7;transition:opacity .2s;line-height:1;background:rgba(255,255,255,.1);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.lightbox-close:hover{opacity:1}
+.lightbox-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.8);font-size:.83rem;text-align:center;background:rgba(0,0,0,.5);padding:6px 16px;border-radius:20px}
+
+/* ===== GLOSSARY TOOLTIP ===== */
+.gloss{border-bottom:1px dashed var(--accent);color:var(--accent);cursor:help;position:relative}
+.gloss::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#1a1d27;border:1px solid var(--accent);color:var(--text);font-size:.76rem;padding:8px 12px;border-radius:8px;white-space:normal;width:250px;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s;line-height:1.55;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.gloss:hover::after{opacity:1}
+
 /* Read button */
-.read-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:.77rem;cursor:pointer;font-family:inherit;margin-top:22px;transition:all .2s}
+.read-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:.76rem;cursor:pointer;font-family:inherit;margin-top:22px;transition:all .2s}
 .read-btn.done{background:rgba(45,212,171,.1);border-color:var(--green);color:var(--green)}
 .read-btn:hover{border-color:var(--green);color:var(--green)}
+
 .no-result{text-align:center;padding:80px 20px;color:var(--muted);font-size:1rem}
-/* Highlight */
-code{background:rgba(79,142,247,.1);color:var(--accent2);padding:1px 5px;border-radius:3px;font-size:.87em;font-family:'Courier New',monospace}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
 @media(max-width:768px){
   .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;width:265px;transform:translateX(-100%);transition:transform .3s}
   .sidebar.mobile-open{transform:translateX(0)}
   .sidebar.collapsed{transform:translateX(-100%)}
-  .content{padding:18px 16px}
+  .content{padding:18px 14px}
   .chapter-title{font-size:1.4rem}
-  .search-box{width:130px}
+  .search-box{width:120px}
+  .img-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
 <div class="app-shell">
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header"><h2>📚 Chapitres</h2></div>
+    <div class="sidebar-header">
+      <span style="font-size:1.1rem">📚</span>
+      <h2>Chapitres</h2>
+    </div>
     <div class="sidebar-inner" id="chapterList"></div>
   </nav>
+
   <div class="main">
     <div class="topbar">
       <button class="menu-btn" onclick="toggleSidebar()">☰</button>
       <span class="topbar-title">🔐 Sécurité Réseaux — Cours Intégral FR</span>
+      <a class="nav-link" href="revision.html">← Révisions</a>
       <input class="search-box" id="searchBox" placeholder="🔍 Rechercher…" oninput="onSearch(this.value)">
       <div class="progress-badge">Progression : <span id="progressText">0/0</span></div>
     </div>
@@ -135,6 +189,7 @@ code{background:rgba(79,142,247,.1);color:var(--accent2);padding:1px 5px;border-
     <div class="no-result" id="noResult" style="display:none">Aucun résultat.</div>
   </div>
 </div>
+
 
 <script>
 const ch15={id:"ch15",num:15,icon:"\ud83d\udd0d",title:"Capture et Falsification de Paquets",desc:"Sniffing (écoute clandestine) et Spoofing (usurpation). Implémentation avec libpcap, raw sockets POSIX, Scapy. Concepts : BPF, mode promiscuous, endianness, checksum.",sections:[
@@ -176,24 +231,95 @@ const ch20={id:"ch20",num:20,icon:"\ud83d\udc94",title:"Heartbleed — Bug et At
     {id:"s20_def",short:"20.4 Défense + Leçons",title:"20.4 Défense, Correction et Leçons",content:"\n<div class=\"prose\">\n<h3 class=\"sub\">Actions immédiates requises en 2014</h3>\n<ol>\n<li><strong>Mettre à jour OpenSSL</strong> vers 1.0.1g (ou désactiver l'extension Heartbeat à la compilation avec <code>-DOPENSSL_NO_HEARTBEATS</code>)</li>\n<li><strong>Révoquer TOUS les certificats TLS</strong> du serveur (la clé privée peut avoir été volée)</li>\n<li><strong>Générer de nouvelles paires de clés</strong> et demander un nouveau certificat</li>\n<li><strong>Invalider toutes les sessions utilisateur</strong> actives (cookies de session potentiellement volés)</li>\n<li><strong>Forcer le changement de mot de passe</strong> pour tous les utilisateurs</li>\n</ol>\n</div>\n<div class=\"code-block\"><div class=\"code-label\">Vérifier si un système est vulnérable</div>\n<pre\"># Vérifier la version d'OpenSSL :\nopenssl version\n# OpenSSL 1.0.1f ← VULNÉRABLE\n# OpenSSL 1.0.1g ← PATCHÉ\n# OpenSSL 1.0.2  ← OK\n\n# Tester à distance avec Nmap :\nnmap --script ssl-heartbleed -p 443 target.example.com\n\n# Ou avec un script Python :\npython heartbleed_test.py target.example.com 443\n\n# Vérifier TOUTES les instances d'OpenSSL sur le système :\ndpkg --list | grep libssl\n# Mettre à jour :\nsudo apt-get update && sudo apt-get install --only-upgrade libssl1.0.0\nsudo service nginx restart   # Redémarrer IMPÉRATIVEMENT</pre></div>\n\n<div class=\"prose\">\n<h3 class=\"sub\">Leçons fondamentales</h3>\n</div>\n<table class=\"dt\">\n<tr><th>Leçon</th><th>Explication</th></tr>\n<tr><td>Ne jamais faire confiance à une longueur déclarée</td><td>Toujours valider les entrées : la longueur reçue d'un tiers ne doit jamais dicter la quantité de mémoire à lire/copier</td></tr>\n<tr><td>Utiliser des outils de défense mémoire</td><td>Valgrind, AddressSanitizer (-fsanitize=address) auraient détecté la lecture hors limites</td></tr>\n<tr><td>Defense in depth</td><td>Même avec la fuite mémoire, Perfect Forward Secrecy (DHE/ECDHE) aurait limité les dégâts</td></tr>\n<tr><td>Open Source n'est pas toujours plus sûr</td><td>OpenSSL est open source depuis 1998, des milliers de développeurs auraient pu voir ce bug en 2 ans</td></tr>\n<tr><td>La cryptographie ne suffit pas</td><td>TLS chiffrait tout — mais la fuite était dans l'implémentation, pas dans la cryptographie elle-même</td></tr>\n</table>\n\n<div class=\"info-box ok\"><div class=\"ib-title\">Perfect Forward Secrecy (PFS) — Une limite partielle</div>\n<p>Si le serveur utilisait <strong>DHE (Diffie-Hellman Ephemeral)</strong> ou <strong>ECDHE</strong> pour l'échange de clés TLS, la fuite de la clé privée serveur ne permettrait PAS de déchiffrer les sessions passées enregistrées. En effet, avec PFS, chaque session génère une clé symétrique éphémère qui n'est jamais stockée sur le disque. Cependant, la fuite de mots de passe et de cookies restait possible.</p>\n<p>Activer PFS en Apache : <code>SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384</code></p></div>\n"}
 ]};
 
+// Inject images into chapters after load
+function injectImages() {
+    const imgs = {
+        's15_sniff':  ['img/packet_structure.png', 'Structure d\'un paquet réseau — Ethernet + IP + TCP/UDP + Données'],
+        's16_syn':    ['img/syn_flooding.png',     'Attaque SYN Flooding — saturation de la file half-open'],
+        's16_hijack': ['img/tcp_hijacking.png',    'Détournement de session TCP — injection de commandes'],
+        's18_fonc':   ['img/dns_resolution.png',   'Hiérarchie DNS et résolution itérative'],
+        's19_tls':    ['img/vpn_tunnel.png',        'Tunnel VPN chiffré AES-256'],
+        's20_hb':     ['img/heartbleed.png',        'Heartbleed — Comparaison requête légitime vs attaque'],
+    };
+    Object.entries(imgs).forEach(([secId, [src, caption]]) => {
+        const el = document.getElementById('sec_' + secId);
+        if(el) {
+            const div = document.createElement('div');
+            div.className = 'img-card';
+            div.innerHTML = '<img src="' + src + '" alt="' + caption + '" style="cursor:pointer" onclick=\'openImg(this.src,this.alt)\'/>' +
+                            '<div class="img-caption">🖼️ ' + caption + ' <span class="enlarge-hint">— cliquer pour agrandir</span></div>';
+            // Insert before read button
+            const readBtn = el.querySelector('.read-btn');
+            if(readBtn) el.insertBefore(div, readBtn);
+            else el.appendChild(div);
+        }
+    });
+    
+    // Dan Kaminsky real photo (Wikipedia) in DNS section
+    const kaminskySection = document.getElementById('sec_s18_cache');
+    if(kaminskySection) {
+        const card = document.createElement('div');
+        card.className = 'person-card';
+        card.innerHTML = `
+            <img class="person-img" 
+                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Dan_Kaminsky_2010.jpg/220px-Dan_Kaminsky_2010.jpg"
+                 onerror="this.src='img/dns_resolution.png'"
+                 alt="Dan Kaminsky">
+            <div class="person-info">
+                <h4>Dan Kaminsky (1979 – 2021)</h4>
+                <div class="person-title">Chercheur en cybersécurité | Chef de la sécurité chez Human Security</div>
+                <p>Dan Kaminsky est le chercheur américain qui a découvert en 2008 une vulnérabilité critique dans le protocole DNS, 
+                permettant d'empoisonner les caches DNS à grande échelle. Sa découverte a déclenché une mise à jour mondiale coordonnée 
+                de serveurs DNS — un événement sans précédent dans l'histoire de l'Internet. Il est décédé le 23 avril 2021 à l'âge de 42 ans.</p>
+            </div>
+        `;
+        const readBtn = kaminskySection.querySelector('.read-btn');
+        if(readBtn) kaminskySection.insertBefore(card, readBtn);
+    }
+    
+    // Wenliang Du (Seed Labs author) mention in introduction
+    const ch15Panel = document.getElementById('panel_ch15');
+    if(ch15Panel) {
+        const firstSection = ch15Panel.querySelector('.section-block');
+        if(firstSection) {
+            const authorCard = document.createElement('div');
+            authorCard.className = 'person-card';
+            authorCard.innerHTML = `
+                <img class="person-img"
+                     src="https://www.cs.syr.edu/~wedu/images/wedu.jpg"
+                     onerror="this.style.display='none'"
+                     alt="Wenliang Du">
+                <div class="person-info">
+                    <h4>Prof. Wenliang (Kevin) Du</h4>
+                    <div class="person-title">Professeur à Syracuse University | Auteur du manuel SEED Labs</div>
+                    <p>Le professeur Wenliang Du est l'auteur du manuel sur lequel ce cours est basé. 
+                    Il a créé les <strong>SEED Labs</strong> — une série de laboratoires pratiques de cybersécurité utilisés par 
+                    plus de 1000 institutions dans 50 pays. Ses travaux sur l'enseignement de la sécurité réseau ont 
+                    influencé des millions d'étudiants dans le monde.</p>
+                </div>
+            `;
+            firstSection.insertBefore(authorCard, firstSection.querySelector('h3.sub') || firstSection.firstChild);
+        }
+    }
+}
+
+// Call after each chapter panel is built
+const _origRenderChapter = renderChapter;
+
 // ===== Application Data =====
 const chapters = [ch15, ch16, ch17, ch18, ch19, ch20];
-
-// ===== State =====
 let currentChId  = 'ch15';
 let currentSecId = '';
 const readSet    = new Set(JSON.parse(localStorage.getItem('secnet_read') || '[]'));
 let sidebarOpen  = true;
 
-// ===== Render functions =====
 function renderChapterList(chs) {
     const list = document.getElementById('chapterList');
     list.innerHTML = '';
     chs.forEach(ch => {
         const div = document.createElement('div');
         div.className = 'chapter-item' + (ch.id === currentChId ? ' active' : '');
-        div.innerHTML = '<span class="chapter-icon">' + ch.icon + '</span>' +
-                        '<span class="chapter-label">Ch.' + ch.num + ' — ' + ch.title + '</span>';
+        div.innerHTML = '<span class="chapter-icon">' + ch.icon + '</span><span class="chapter-label">Ch.' + ch.num + ' — ' + ch.title + '</span>';
         div.onclick = () => selectChapter(ch.id);
         list.appendChild(div);
     });
@@ -214,9 +340,8 @@ function buildChapterHTML(ch) {
         html += '<div class="section-block" id="sec_' + s.id + '">';
         html += '<h2 class="section-title">' + s.title + '</h2>';
         html += s.content;
-        html += '<button class="read-btn' + (isDone ? ' done' : '') +
-                '" data-sec="' + s.id + '">' +
-                (isDone ? '✅ Lu' : '○ Marquer comme lu') + '</button>';
+        html += '<button class="read-btn' + (isDone ? ' done' : '') + '" data-sec="' + s.id + '">' +
+                (isDone ? '\u2705 Lu' : '\u25cb Marquer comme lu') + '</button>';
         html += '</div>';
     });
     return html;
@@ -227,7 +352,7 @@ function renderChapter(ch) {
     let el = document.getElementById('panel_' + ch.id);
     if(!el) {
         el = document.createElement('div');
-        el.id        = 'panel_' + ch.id;
+        el.id = 'panel_' + ch.id;
         el.className = 'content';
         el.innerHTML = buildChapterHTML(ch);
         container.appendChild(el);
@@ -236,6 +361,23 @@ function renderChapter(ch) {
         });
         el.querySelectorAll('.read-btn').forEach(btn => {
             btn.onclick = () => toggleRead(ch.id, btn.dataset.sec, btn);
+        });
+        // Add copy buttons to code blocks
+        el.querySelectorAll('.code-block').forEach(block => {
+            const label = block.querySelector('.code-label');
+            if(label) {
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.textContent = 'Copier';
+                btn.onclick = () => copyCode(btn);
+                label.appendChild(btn);
+            }
+        });
+        // Make images clickable → lightbox
+        el.querySelectorAll('.img-card img').forEach(img => {
+            img.addEventListener('click', () => {
+                openImg(img.src, img.alt);
+            });
         });
     }
     document.querySelectorAll('.content').forEach(p => p.classList.remove('active'));
@@ -246,7 +388,7 @@ function renderChapter(ch) {
 }
 
 function selectChapter(chId) {
-    currentChId  = chId;
+    currentChId = chId;
     currentSecId = '';
     const ch = chapters.find(c => c.id === chId);
     if(!ch) return;
@@ -268,19 +410,18 @@ function selectSection(chId, secId) {
         const el = document.getElementById('sec_' + s.id);
         if(el) el.classList.toggle('active', s.id === secId);
     });
-    // Scroll to top
-    document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'});
+    document.querySelector('.main').scrollTo({top:0, behavior:'smooth'});
 }
 
 function toggleRead(chId, secId, btn) {
     const key = chId + '|' + secId;
     if(readSet.has(key)) {
         readSet.delete(key);
-        btn.textContent = '○ Marquer comme lu';
+        btn.innerHTML = '\u25cb Marquer comme lu';
         btn.classList.remove('done');
     } else {
         readSet.add(key);
-        btn.textContent = '✅ Lu';
+        btn.innerHTML = '\u2705 Lu';
         btn.classList.add('done');
     }
     localStorage.setItem('secnet_read', JSON.stringify([...readSet]));
@@ -288,7 +429,7 @@ function toggleRead(chId, secId, btn) {
 }
 
 function updateProgress() {
-    const total = chapters.reduce((a, c) => a + c.sections.length, 0);
+    const total = chapters.reduce((a,c) => a + c.sections.length, 0);
     document.getElementById('progressText').textContent = readSet.size + '/' + total;
 }
 
@@ -314,8 +455,14 @@ function onSearch(q) {
     document.getElementById('noResult').style.display = filtered.length === 0 ? 'block' : 'none';
 }
 
-// ===== Init =====
+// Init
 renderChapterList(chapters);
+// Override selectChapter to inject images after render
+const _origSelect = selectChapter;
+window.selectChapter = function(chId) {
+  _origSelect(chId);
+  setTimeout(injectImages, 10);
+};
 selectChapter('ch15');
 updateProgress();
 </script>
