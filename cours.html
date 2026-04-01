@@ -261,10 +261,7 @@ function injectImages() {
         const card = document.createElement('div');
         card.className = 'person-card';
         card.innerHTML = `
-            <img class="person-img" 
-                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Dan_Kaminsky_2010.jpg/220px-Dan_Kaminsky_2010.jpg"
-                 onerror="this.src='img/dns_resolution.png'"
-                 alt="Dan Kaminsky">
+            <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#4f8ef7,#7c5cfc);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;flex-shrink:0;border:3px solid #4f8ef7">DK</div>
             <div class="person-info">
                 <h4>Dan Kaminsky (1979 – 2021)</h4>
                 <div class="person-title">Chercheur en cybersécurité | Chef de la sécurité chez Human Security</div>
@@ -285,10 +282,7 @@ function injectImages() {
             const authorCard = document.createElement('div');
             authorCard.className = 'person-card';
             authorCard.innerHTML = `
-                <img class="person-img"
-                     src="https://www.cs.syr.edu/~wedu/images/wedu.jpg"
-                     onerror="this.style.display='none'"
-                     alt="Wenliang Du">
+                <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#2dd4ab,#4f8ef7);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;flex-shrink:0;border:3px solid #2dd4ab">WD</div>
                 <div class="person-info">
                     <h4>Prof. Wenliang (Kevin) Du</h4>
                     <div class="person-title">Professeur à Syracuse University | Auteur du manuel SEED Labs</div>
@@ -300,6 +294,131 @@ function injectImages() {
             `;
             firstSection.insertBefore(authorCard, firstSection.querySelector('h3.sub') || firstSection.firstChild);
         }
+    }
+}
+
+
+
+// After injectImages, also add the Kaminsky deeper explanation
+function enrichKaminskySection() {
+    const secEl = document.getElementById('sec_s18_cache');
+    if(!secEl || secEl.dataset.enriched) return;
+    secEl.dataset.enriched = '1';
+    
+    const extraDiv = document.createElement('div');
+    extraDiv.innerHTML = `
+<h3 class="sub">Comment Dan Kaminsky a découvert l'attaque ultime (Steve Friedl, 2008)</h3>
+<div class="prose">
+<p>Avant Kaminsky, les chercheurs connaissaient les attaques DNS basiques : empoisonner <strong>un seul enregistrement A</strong> d'un sous-domaine unique. L'impact était limité — une seule entrée du cache était corrompue.</p>
+<p>Le génie de Kaminsky fut de réaliser qu'au lieu de cibler l'enregistrement final (l'IP du site), on pouvait monter d'un niveau et <strong>détourner les enregistrements NS (Name Server) — l'autorité de toute la zone</strong>.</p>
+</div>
+<div class="info-box danger"><div class="ib-title">La différence cruciale — Poisonner l'autorité, pas juste la réponse</div>
+<table class="dt">
+<tr><th>Approche classique</th><th>Attaque de Kaminsky</th></tr>
+<tr><td>Cible : enregistrement A de<br><code>www.bankofsteve.com</code></td><td>Cible : enregistrement NS (autorité) de<br><code>bankofsteve.com</code> tout entier</td></tr>
+<tr><td>Impact : 1 site redirigé</td><td>Impact : <strong>TOUT le domaine</strong> bankofsteve.com<br>+ tous ses sous-domaines (www, mail, ftp...)</td></tr>
+<tr><td>Durée : TTL de la réponse</td><td>Durée : TTL très élevé mis par l'attaquant</td></tr>
+<tr><td>Difficile à répéter</td><td>Rejouer facilement depuis la même base</td></tr>
+</table></div>
+<div class="prose">
+<h4 class="sub2">Pourquoi c'est si dévastateur</h4>
+<p>En poisonnant les enregistrements NS, l'attaquant configure son propre serveur DNS comme <strong>serveur autoritaire</strong> pour tout le domaine cible. Le résolveur corrompu <em>croyant</em> désormais que c'est le vrai serveur DNS de la banque :</p>
+<ul>
+<li>Renvoie l'IP de l'attaquant pour <strong>tout</strong> sous-domaine interrogé</li>
+<li>Renvoie des enregistrements MX falsifiés → <strong>emails interceptés</strong></li>
+<li>Peut rester empoisonné des heures ou des jours (TTL long)</li>
+</ul>
+</div>
+
+<div class="info-box warn"><div class="ib-title">La théorie des probabilités — Pourquoi en 10 secondes ?</div>
+<div class="prose">
+<p>Le Transaction ID est sur <strong>16 bits = 65536 valeurs possibles</strong>. L'attaquant envoie une rafale de réponses forgées pour chaque requête avec des TxID différents.</p>
+<p>Si l'attaquant envoie 50 faux paquets par requête, la probabilité de succès par tentative est de 50/65536 ≈ 0,076%. Mais en répétant avec de nouveaux sous-domaines aléatoires à très grande vitesse, le succès arrive statistiquement en <strong>moins de 10 secondes</strong>.</p>
+<p>Avec la <strong>randomisation du port source</strong> (post-Kaminsky), l'espace de recherche passe à 65536 × 65536 = 4 milliards → attaque pratiquement impossible sans interception physique.</p>
+</div></div>
+
+<div class="info-box tip"><div class="ib-title">Prise de contrôle du TLD — Aller encore plus haut</div>
+<p>La même technique peut cibler le TLD <code>.com</code> lui-même ! En poisonnant les enregistrements NS de <code>.com</code>, un attaquant peut potentiellement rediriger TOUS les noms en <code>.com</code> vers ses propres serveurs. C'est théoriquement possible mais nécessite des ressources massives pour servir tout le trafic généré.</p></div>
+`;
+    const readBtn = secEl.querySelector('.read-btn');
+    if(readBtn) secEl.insertBefore(extraDiv, readBtn);
+    else secEl.appendChild(extraDiv);
+}
+
+
+// Add Kevin Mitnick section
+function addMitnickSection() {
+    const ch16panel = document.getElementById('panel_ch16');
+    if(!ch16panel || ch16panel.dataset.mitnick) return;
+    ch16panel.dataset.mitnick = '1';
+    
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section-block';
+    secDiv.id = 'sec_s16_mitnick';
+    secDiv.innerHTML = `
+<h2 class="section-title">16.5 Kevin Mitnick — L'art du Social Engineering</h2>
+<div class="person-card">
+  <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#f87171,#fb923c);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;flex-shrink:0;border:3px solid #f87171">KM</div>
+  <div class="person-info">
+    <h4>Kevin Mitnick (1963 – 2023)</h4>
+    <div class="person-title">Le hacker le plus recherché des États-Unis · Auteur · Consultant en sécurité</div>
+    <p>Kevin Mitnick est l'un des hackers les plus célèbres de l'histoire. Dans les années 1980-90, il a pénétré les systèmes de Pacific Bell, Nokia, Motorola, Sun Microsystems et le Pentagone. Arrêté en 1995 après une traque de 3 ans par le FBI, il a passé 5 ans en prison. Après sa libération, il est devenu consultant en sécurité et auteur de plusieurs livres sur l'art du piratage.</p>
+  </div>
+</div>
+
+<div class="info-box danger"><div class="ib-title">Pourquoi Mitnick est pertinent dans le contexte TCP/IP</div>
+<p>Mitnick a exploité des vulnérabilités <strong>TCP IP Spoofing</strong> pour sa célèbre attaque contre Tsutomu Shimomura en 1994 — une des premières grandes démonstrations d'IP spoofing + TCP sequence prediction en conditions réelles. Cette attaque a inspiré une génération entière de chercheurs en sécurité réseau, dont les travaux mènent directement aux chapitres de ce cours.</p></div>
+
+<h3 class="sub">L'Attaque Shimomura (Noël 1994) — TCP Spoofing en pratique</h3>
+<div class="prose">
+<p>L'attaque de Mitnick contre Shimomura est un classique qui combine plusieurs techniques vues dans ce cours :</p>
+<ol>
+<li><strong>Reconnaissance</strong> : Mitnick identifie que le serveur <code>ariel.sdsc.edu</code> fait confiance à <code>x-terminal.sdsc.edu</code> (relation de confiance rsh/rlogin)</li>
+<li><strong>SYN Flooding</strong> : Il inonde <code>x-terminal</code> de paquets SYN pour le rendre indisponible (il ne peut pas répondre et démentir les spoofed packets)</li>
+<li><strong>TCP Sequence Prediction</strong> : Il envoie des paquets SYN au serveur cible (<code>ariel</code>) puis observe les numéros de séquence dans les SYN-ACK pour prédire le prochain ISN (Initial Sequence Number)</li>
+<li><strong>IP Spoofing + Hijacking</strong> : Il envoie des paquets forgés avec l'IP source de <code>x-terminal</code> (la machine de confiance muette), complétant le handshake avec le numéro de séquence prédit</li>
+<li><strong>Backdoor</strong> : Il profite de la connexion TCP spoofée pour ajouter son IP dans <code>~root/.rhosts</code> sur le serveur cible → accès root permanent</li>
+</ol>
+</div>
+
+<div class="diagram">
+<div class="diagram-title">Chronologie de l'attaque Shimomura — 25 décembre 1994</div>
+<div class="mem-diagram">
+<span class="mem-ok">14:09:32 — Mitnick envoie 20 SYN vers x-terminal:513 → SYN FLOOD (le rend muet)</span>
+<span class="mem-neutral">14:10:13 — Test de prédiction : 8 connexions SYN vers ariel.sdsc.edu:513</span>
+<span class="mem-neutral">          → Observation des ISN : incréments de 128000 (réguliers !)</span>
+<span class="mem-leak">14:10:16 — Spoofed SYN : IP_src=x-terminal, dst=ariel, dst_port=514</span>
+<span class="mem-leak">          → ariel répond SYN-ACK vers x-terminal (qui est muet → pas de RST)</span>
+<span class="mem-leak">14:10:16 — Spoofed ACK : ack=ISN_ariel+1 (valeur prédite !)</span>
+<span class="mem-leak">          → Connexion TCP établie sans jamais voir le SYN-ACK !</span>
+<span class="mem-leak">14:10:16 — Commande injectée : "echo '+ +' >> /.rhosts"</span>
+<span class="mem-ok">→ Accès root sur ariel.sdsc.edu depuis n'importe quelle IP</span></div></div>
+
+<div class="info-box note"><div class="ib-title">Leçon de sécurité — Pourquoi cela marchait en 1994</div>
+<ul class="info-box"><li>Les ISN (Initial Sequence Numbers) TCP n'étaient PAS aléatoires — ils suivaient un pattern prévisible</li>
+<li>Les relations de confiance rsh/rlogin utilisaient uniquement l'IP source comme authentification</li>
+<li>Pas de chiffrement → une fois la connexion établie, toutes les commandes étaient visibles en clair</li>
+<li>Aujourd'hui : les ISN sont aléatoires (RFC 6528), SSH remplace rsh, TLS chiffre tout</li>
+</ul></div>
+
+<div class="info-box ok"><div class="ib-title">Les livres de Mitnick — Ressources de référence</div>
+<ul class="info-box">
+<li><em>"The Art of Intrusion"</em> (2005) — Cas réels de piratage décrits en détail technique</li>
+<li><em>"The Art of Deception"</em> (2002) — Le social engineering : manipuler les humains pour obtenir accès</li>
+<li><em>"Ghost in the Wires"</em> (2011) — Son autobiographie de fugitif recherché par le FBI</li>
+</ul></div>
+`;
+    ch16panel.appendChild(secDiv);
+    
+    // Add button to the section nav
+    const nav = document.getElementById('secnav_ch16');
+    if(nav) {
+        const btn = document.createElement('button');
+        btn.className = 'sec-btn';
+        btn.dataset.sec = 's16_mitnick';
+        btn.textContent = '16.5 Kevin Mitnick';
+        btn.onclick = () => selectSection('ch16', 's16_mitnick');
+        nav.appendChild(btn);
     }
 }
 
@@ -461,7 +580,7 @@ renderChapterList(chapters);
 const _origSelect = selectChapter;
 window.selectChapter = function(chId) {
   _origSelect(chId);
-  setTimeout(injectImages, 10);
+  setTimeout(() => { injectImages(); enrichKaminskySection(); addMitnickSection(); }, 50);
 };
 selectChapter('ch15');
 updateProgress();
