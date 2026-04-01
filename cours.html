@@ -525,12 +525,10 @@ function selectSection(chId, secId) {
     const nav = document.getElementById('secnav_' + chId);
     if(nav) nav.querySelectorAll('.sec-btn').forEach(btn =>
         btn.classList.toggle('active', btn.dataset.sec === secId));
-    const ch = chapters.find(c => c.id === chId);
-    if(!ch) return;
-    ch.sections.forEach(s => {
-        const el = document.getElementById('sec_' + s.id);
-        if(el) el.classList.toggle('active', s.id === secId);
-    });
+    // Query ALL section-blocks in the panel (incl. dynamically added ones like Mitnick)
+    const panel = document.getElementById('panel_' + chId);
+    if(panel) panel.querySelectorAll('.section-block').forEach(el =>
+        el.classList.toggle('active', el.id === 'sec_' + secId));
     document.querySelector('.main').scrollTo({top:0, behavior:'smooth'});
 }
 
